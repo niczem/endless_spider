@@ -1,0 +1,25 @@
+{
+  "name": "endless_spider",
+  "version": "1.0.0",
+  "description": "What it can not do  - crawl pdfs  - crawl flash (^^)",
+  "main": "crawler.js",
+  "dependencies": {
+    "get-urls": "^7.2.0",
+    "mysql": "^2.16.0",
+    "validator": "^10.5.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/niczem/endless_spider.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/niczem/endless_spider/issues"
+  },
+  "homepage": "https://github.com/niczem/endless_spider#readme"
+}

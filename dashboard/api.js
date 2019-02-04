@@ -31,7 +31,7 @@ app.get('/api/getIncommingLinkDistribution', function(req, res, next){
 			var distribution = {};
 			result.forEach(function(value,i){
 				if(typeof distribution[value.count] == 'undefined')
-					distribution[value.count] = 1;
+					distribution[value.count] = 0;
 				else
 					distribution[value.count]++;
 				

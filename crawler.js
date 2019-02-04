@@ -1,10 +1,9 @@
-
 let request = require('request');
 let getUrls = require('get-urls');
 let isURL = require('validator/lib/isURL');
 let db = require('./db');
 
-
+let connection_type = 'sqlite';
 var crawler = new function(){
 
 	this.current_site_id;
@@ -27,11 +26,20 @@ var crawler = new function(){
 
 	this.insert_site = function(url, status, cb){
 		  var self = this;
-		  var records = [
-		    [url, status]
-		  ];
-		  db.connection.query("INSERT INTO sites (site_url,status) VALUES ?", [records], function (err, result, fields) {
-			
+		  let function_title, statement, records;
+		  if(connection_type == 'sqlite'){
+		  	function_title = 'run';
+		  	statement = "INSERT INTO sites (site_url,status) VALUES (?,?)";
+		  	records = [url, status];
+		  }else{
+		  	function_title = 'query';
+		  	statement = "INSERT INTO sites (site_url,status) VALUES ?";
+		  	records = [
+			    [url, status]
+			  ];
+		  }
+		  db.connection[function_title](statement, [records], function (err, result, fields) {
+			console.log(err, result, fields);
 		    debug.log('added site '+url);
 		    // if any error while executing above query, throw error
 		    
@@ -39,6 +47,9 @@ var crawler = new function(){
 						debug.error('Link to long, skipping...')
 							self.terminateProcess()
 					}else{
+							console.log('=========');
+							console.log(result,fields);
+							console.log('=========');
 		    				// if there is no error, you have the result
 		    				cb(result.insertId);
 					}
@@ -115,6 +126,10 @@ var crawler = new function(){
 			debug.log('crawling site #'+this.current_site_id);
 			var self = this;
 			this.get_url_by_site_id(this.current_site_id,function(url){
+
+
+
+
 				self.request_site(url,function(error,result){
 					
 					if(error){
@@ -181,7 +196,11 @@ var crawler = new function(){
 		debug.log('get url from site_id #'+id);
 		//get url from db
 		var self = this;
-		db.connection.query('SELECT * FROM sites WHERE id = ?', [id],(error,result)=>{
+		let function_title = 'query';
+		if(connection_type == 'sqlite'){
+			function_title = 'all'
+		}
+		db.connection[function_title]('SELECT * FROM sites WHERE id = ?', [id],(error,result,n)=>{
 				if(error){
 					if(error.code == 'ER_NO_SUCH_TABLE'){
 						debug.error('seems like table dont exist \n proceeding with install');
@@ -190,6 +209,7 @@ var crawler = new function(){
 						});
 					}
 				}else{
+					console.log(result,n);
 					if(result[0] && result[0].site_url)
 						cb(result[0].site_url);
 					else
@@ -220,6 +240,7 @@ var crawler = new function(){
 			cb(error);
 			
 		  }else
+		  		console.log('got site');
 	          	cb(null,{'status':response && response.statusCode,'content':body});
 		  
 		});

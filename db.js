@@ -1,34 +1,25 @@
 'use strict';
-let mysql = require('mysql');
+var sqlite3 = require('sqlite3').verbose();
 
 
 var db = new function(){
 
 	this.connection;
 	this.init = function(cb){
-		this.connection = mysql.createConnection({
-		  host: "localhost",
-		  user: "root",
-		  password: "abcABC!123",
-		  database: 'crawler',
-		  multipleStatements: true
-		});
+		this.connection = new sqlite3.Database('./chinook.db');
 
-		this.connection.connect((err) => {
-		  if (err) throw err;
-		  console.log('Connected!');
-			if(typeof cb == 'function')
-		  		cb();
-		});
+		//link mysql query function with sqlite run function
+		this.connection.query = this.connection.run;
+		if(typeof cb == 'function')
+		  	cb();
 
 
 	}
 
 	this.query = function(query,cb){
-		this.connection.query(query, function (error, results, fields) {
-		  if (error) cb(error);
-		  else cb(null, results)
-		  console.log('Tables created: ', results[0]);
+		this.connection.all(query,function(error,results){
+			if (error) cb(error);
+		  	else cb(null, results)
 		});
 	}
 	
@@ -37,7 +28,7 @@ var db = new function(){
 		'  `id` int(11) NOT NULL,\n'+
 		'  `site_url` varchar(1000) NOT NULL,\n'+
 		'  `status` smallint(3) NOT NULL\n'+
-		') ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;\n'+
+		');\n'+
 		'ALTER TABLE `sites`\n'+
 		'  ADD PRIMARY KEY (`id`);\n'+
 		'ALTER TABLE `sites`\n'+
@@ -46,16 +37,18 @@ var db = new function(){
 		'CREATE TABLE `links` (\n'+
 		'  `in_id` int(11) NOT NULL,\n'+
 		'  `out_id` int(11) NOT NULL\n'+
-		') ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;\n'+
+		');\n'+
 		'ALTER TABLE `links`\n'+
 		'  ADD PRIMARY KEY (`in_id`,`out_id`);\n'+
 		'COMMIT;';
-		this.connection.query(create_tables, function (error, results, fields) {
+		this.connection.all(create_tables, function (error, results) {
 		  if (error) throw error;
-		  debug.log('Tables created: ', results[0]);
+		  console.log(results);
+		  console.log('Tables created: ', results[0]);
+		  if(typeof cb=='function')
 		  cb();
 		});
-		this.connection.end();
+		this.connection.close();
 	}
 }
 

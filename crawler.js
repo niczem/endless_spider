@@ -172,7 +172,7 @@ var crawler = new function(){
 					}
 				});
 			});
-			this.current_site_id++;
+			//this.current_site_id++;
 		}
 
 	};

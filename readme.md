@@ -1,22 +1,28 @@
-Endless Web Spider
+# Webcrawler for incoming links
 
-#Dependencies
+## Requirements
 
 NPM, Node, MySQL
 
-#Install
+
+## Install
+
 1. Clone this repo
 
 2. Run npm install
 
 3. Create mysql table and modify it in ./db.js
 
-4. Run node crawler.js -> will fail, but creates db structure
+4. Run `node crawler.js --install`
 
-5. Add a first website (e.g. http://news.ycombinator.com) with empty status
+5. Add a first website (e.g. http://news.ycombinator.com) with empty status to Table sites
 
-6. Run node crawaler.js again
 
-#What it can not do
+## Run the crawler
+
+`node crawler.js` 
+
+
+## What it can not do
  - crawl pdfs
- - crawl flash (^^)
+ - crawl flash

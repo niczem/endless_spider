@@ -5,11 +5,6 @@ let isURL = require('validator/lib/isURL');
 let db = require('./db');
 
 
-
-
-
-
-
 var crawler = new function(){
 
 	this.current_site_id;
@@ -297,4 +292,9 @@ var debug = new function(){
 		console.log("\x1b[31m",text,'\x1b[0m');
 	}
 }
-crawler.init();
+
+var args = process.argv.slice(2);
+if(typeof args[0] !== 'undefined' && args[0] == '--install'){
+	crawler.install();
+}else
+	crawler.init();

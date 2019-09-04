@@ -4,6 +4,7 @@ let getUrls = require('get-urls');
 let isURL = require('validator/lib/isURL');
 let db = require('./db');
 
+let start_url = 'https://news.ycombinator.com'; //<3
 
 var crawler = new function(){
 
@@ -26,11 +27,15 @@ var crawler = new function(){
 	}
 
 	this.insert_site = function(url, status, cb){
-		  var self = this;
-		  var records = [
-		    [url, status]
+		  let self = this;
+
+		  let timestamp = Math.floor(Date.now()/1000);
+
+		  let records = [
+		    [url, status, timestamp, timestamp]
 		  ];
-		  db.connection.query("INSERT INTO sites (site_url,status) VALUES ?", [records], function (err, result, fields) {
+
+		  db.connection.query("INSERT INTO sites (site_url,status, date_added, date_crawled) VALUES ?", [records], function (err, result, fields) {
 			
 		    debug.log('added site '+url);
 		    // if any error while executing above query, throw error
@@ -196,7 +201,9 @@ var crawler = new function(){
 					if(error.code == 'ER_NO_SUCH_TABLE'){
 						debug.error('seems like table dont exist \n proceeding with install');
 						self.install(function(){
-							process.exit(22);
+							self.insert_site(start_url, -1, function(){
+								process.exit(22);
+							})
 						});
 					}
 				}else{

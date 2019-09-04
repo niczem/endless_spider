@@ -36,7 +36,8 @@ let db = new function(){
 		'  `id` int(11) NOT NULL,\n'+
 		'  `site_url` varchar(1000) NOT NULL,\n'+
 		'  `status` smallint(3) NOT NULL,\n'+
-                '  `date_added` int(11) NOT NULL\n'+
+        '  `date_added` int(11) NOT NULL,\n'+
+        '  `date_crawled` int(11) NOT NULL\n'+
 		') ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;\n'+
 		'ALTER TABLE `sites`\n'+
 		'  ADD PRIMARY KEY (`id`);\n'+

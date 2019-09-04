@@ -258,7 +258,7 @@ var crawler = new function(){
 
 
 	this.install = function(cb){
-		db.init(function(cb){
+		db.init(function(){
 			db.create_tables(cb);
 		});	
 	}

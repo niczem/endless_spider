@@ -1,11 +1,11 @@
-#Webcrawler for incoming links
+# Webcrawler for incoming links
 
-##Requirements
+## Requirements
 
 NPM, Node, MySQL
 
 
-##Install
+## Install
 
 1. Clone this repo
 
@@ -18,11 +18,11 @@ NPM, Node, MySQL
 5. Add a first website (e.g. http://news.ycombinator.com) with empty status to Table sites
 
 
-##Run the crawler
+## Run the crawler
 
 `node crawler.js` 
 
 
-##What it can not do
+## What it can not do
  - crawl pdfs
  - crawl flash

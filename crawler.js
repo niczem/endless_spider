@@ -201,6 +201,7 @@ var crawler = new function(){
 					if(error.code == 'ER_NO_SUCH_TABLE'){
 						debug.error('seems like table dont exist \n proceeding with install');
 						self.install(function(){
+							debug.log('install succeeded! adding first site '+start_url);
 							self.insert_site(start_url, -1, function(){
 								process.exit(22);
 							})

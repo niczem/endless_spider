@@ -120,8 +120,18 @@ var crawler = new function(){
 			debug.log('crawling site #'+this.current_site_id);
 			var self = this;
 			this.get_url_by_site_id(this.current_site_id,function(url){
+
+				//do not crawl sites like mp3, pdf etc
+				var forbidden_extensions = ['gif', 'mp3', 'mp4', 'pdf', 'avi', 'jpg', 'JPG', 'jpeg'];
+				if(forbidden_extensions.indexOf(url.split('.')[url.split('.').length-1]
+) > -1){
+					debug.log('forbidden extension, skip url'+url);
+					self.terminateProcess();
+					return null;
+				}
+
+
 				self.request_site(url,function(error,result){
-					
 					if(error){
 						debug.error('error fetching '+url+' :',error);
 						//update status!!

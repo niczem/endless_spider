@@ -5,4 +5,4 @@ password: "password",
 database: 'spider',
 multipleStatements: true                
 }
-exports.defailt = config;
+exports.default = config;

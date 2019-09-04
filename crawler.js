@@ -39,13 +39,15 @@ var crawler = new function(){
 			
 		    debug.log('added site '+url);
 		    // if any error while executing above query, throw error
-		    
 					if(err && err.code == 'ER_DATA_TOO_LONG'){
 						debug.error('Link to long, skipping...')
 							self.terminateProcess()
 					}else{
 		    				// if there is no error, you have the result
-		    				cb(result.insertId);
+		    				if(result&&result.insertId)
+							cb(result.insertId);
+						else
+							cb(null);
 					}
 		  });
 	
@@ -206,6 +208,8 @@ var crawler = new function(){
 								process.exit(22);
 							})
 						});
+					}else{
+						console.log(error);
 					}
 				}else{
 					if(result[0] && result[0].site_url)

@@ -1,18 +1,13 @@
 'use strict';
 let mysql = require('mysql');
 
+let config = require('./config/config.js');
 
-var db = new function(){
+let db = new function(){
 
 	this.connection;
 	this.init = function(cb){
-		this.connection = mysql.createConnection({
-		  host: "localhost",
-		  user: "root",
-		  password: "abcABC!123",
-		  database: 'crawler',
-		  multipleStatements: true
-		});
+		this.connection = mysql.createConnection(config.default);
 
 		this.connection.connect((err) => {
 		  if (err) throw err;

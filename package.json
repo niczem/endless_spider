@@ -4,8 +4,10 @@
   "description": "What it can not do  - crawl pdfs  - crawl flash (^^)",
   "main": "crawler.js",
   "dependencies": {
+    "express": "^4.16.3",
     "get-urls": "^7.2.0",
     "mysql": "^2.16.0",
+    "request": "^2.88.0",
     "validator": "^10.5.0"
   },
   "devDependencies": {},

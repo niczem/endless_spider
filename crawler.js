@@ -133,7 +133,7 @@ var crawler = new function(){
 
 
 					debug.log('forbidden extension, update db entry and skip url'+url);
-					this.update_site_status(this.current_site_id, -2, function(){
+					self.update_site_status(this.current_site_id, -2, function(){
 						self.terminateProcess();
 						return null;
 					})

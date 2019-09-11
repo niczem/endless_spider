@@ -32,19 +32,23 @@ var crawler = new function(){
 		  let timestamp = Math.floor(Date.now()/1000);
 
 		  let records = [
-		    [url, status, timestamp, timestamp]
+		    [url, status, timestamp, 0]
 		  ];
 
 		  db.connection.query("INSERT INTO sites (site_url,status, date_added, date_crawled) VALUES ?", [records], function (err, result, fields) {
 			
 		    debug.log('added site '+url);
-		    // if any error while executing above query, throw error
+		    		// if any error while executing above query, throw error
 					if(err && err.code == 'ER_DATA_TOO_LONG'){
 						debug.error('Link to long, skipping...')
-							self.terminateProcess()
+						self.terminateProcess()
+					}else if(err){
+						debug.error('unknown error:');
+						debug.error(err);
+						self.terminateProcess()
 					}else{
-		    				// if there is no error, you have the result
-		    				if(result&&result.insertId)
+		    			// if there is no error, you have the result
+		    			if(result&&result.insertId)
 							cb(result.insertId);
 						else
 							cb(null);
@@ -96,15 +100,14 @@ var crawler = new function(){
 		}
 	}
 	this.update_site_status = function(site_id, status, cb){
-		db.connection.query("UPDATE sites SET status=? WHERE id=?", [status,site_id], (err,result,fields)=>{
+		let timestamp = Math.floor(Date.now()/1000);
+		db.connection.query("UPDATE sites SET status=?, date_crawled=? WHERE id=?", [status,timestamp,site_id], (err,result,fields)=>{
 			if(err){
 				if(err.code == 'ER_DUP_ENTRY'){
 					debug.log('duplicate entry \n skipping');
-					cb('error');
 				}
-				
-			}	
-					
+				cb('error');
+			}
 			else cb(result);
 		});
 	}
@@ -127,9 +130,13 @@ var crawler = new function(){
 				var forbidden_extensions = ['gif', 'mp3', 'mp4', 'pdf', 'avi', 'jpg', 'JPG', 'jpeg'];
 				if(forbidden_extensions.indexOf(url.split('.')[url.split('.').length-1]
 ) > -1){
-					debug.log('forbidden extension, skip url'+url);
-					self.terminateProcess();
-					return null;
+
+
+					debug.log('forbidden extension, update db entry and skip url'+url);
+					this.update_site_status(this.current_site_id, -2, function(){
+						self.terminateProcess();
+						return null;
+					})
 				}
 
 

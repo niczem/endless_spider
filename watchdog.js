@@ -5,9 +5,9 @@ const { exec } = require('child_process');
 
 let interval = 2 //minutes
 let filename = 'counter.txt';
-let command = 'pm2 reload crawler';
+let command = 'pm2 reload crawler1';
 let counter_value, current_value;
-
+let last_value = 0;
 fs.readFile(filename, function(err, buf) {
   counter_value = parseInt(buf.toString());
   console.log('got initial counter value of '+counter_value);
@@ -18,6 +18,12 @@ fs.readFile(filename, function(err, buf) {
     fs.readFile(filename, function(err_a, buf_a) {
       current_value = parseInt(buf_a.toString());
 
+      if(isNaN(current_value))
+        fs.writeFile(filename, last_value, (err)=>{
+          process.exit(1);
+        });
+      else
+        last_value = current_value;
 
       console.log('got current_value value of '+current_value+' from '+filename);
       if(counter_value <= current_value){

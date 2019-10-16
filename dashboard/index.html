@@ -10,7 +10,7 @@
     <meta name="author" content="">
     <!-- Favicon icon -->
     <link rel="icon" type="image/png" sizes="16x16" href="images/favicon.png">
-    <title>Ela - Bootstrap Admin Dashboard Template</title>
+    <title>Spider Dashboard</title>
     <!-- Bootstrap Core CSS -->
     <link href="css/lib/bootstrap/bootstrap.min.css" rel="stylesheet">
     <!-- Custom CSS -->
@@ -163,26 +163,18 @@
                     <div class="col-lg-12">
                         <div class="card">
                             <div class="card-body">
-                                <h4 class="card-title">Extra Area Chart</h4>
-                                <div id="distribution-chart"></div>
+                                <h4 class="card-title"><i>distribution of incoming edges on a vertice</i></h4>
+                                <div id="distribution-chart" style="height:400px"></div>
                             </div>
                         </div>
                     </div>
+
+                    <p>
+                        <div class="button" onclick="setYLogScale(true);">yLogScale ON</div>
+                        <div class="button" onclick="setYLogScale(false);">yLogScale OFF</div>
+                    </p>
                     <!-- column -->
 
-                    <!-- column -->
-                    <div class="col-lg-4">
-                        <div class="card">
-                            <div class="card-body browser">
-                                <p class="f-w-600">
-
-                                    <div class="button" onclick="setYLogScale(true);">yLogScale ON</div>
-                                    <div class="button" onclick="setYLogScale(false);">yLogScale OFF</div>
-                                </p>
-                                
-                            </div>
-                        </div>
-                    </div>
                     <!-- column -->
                 </div>
                 
@@ -425,18 +417,17 @@ function loadChart(){
 	}).done(function(result) {
 		 
 		data = [];
-
+        result = JSON.parse(result);
 		for (var key in result) {
 		    data.push({
 			x:parseInt(key),
 			y:result[key]
 		    });
 		}
-
-
+        data = data.slice(0,2000);
 
 		// Extra chart
-		morrisArea = Morris.Area( {
+		morrisArea = Morris.Line( {
 			element: 'distribution-chart',
 			data: data,
 			lineColors: [ '#26DAD2'],
@@ -453,7 +444,8 @@ function loadChart(){
 			gridLineColor: '#e0e0e0',
 			hideHover: 'auto',
   			parseTime: false,
-  			yLogScale: true
+  			yLogScale: true,
+            smooth:true
 
 		} );
 
@@ -470,7 +462,7 @@ function getStats(cb){
 	  url: "./api/getStats"
 	  
 	}).done(function(result) {
-		cb(result);
+		cb(JSON.parse(result));
 	});
 }
 
@@ -479,12 +471,12 @@ function getCrawledSites(cb){
 	  url: "./api/getCrawledSites"
 	  
 	}).done(function(result) {
-		cb(result);
+        cb(JSON.parse(result));
 	});
 }
 
 function loadStats(){
-	var stats = getStats((stats)=>{
+	getStats((stats)=>{
 	$('.sitesInDb').html(stats.count_sites);
 	$('.linksFound').html(stats.count_links);
 	});
@@ -495,11 +487,13 @@ function loadStats(){
 function reload(){
 	loadStats();
 
-$.ajax({
+    $.ajax({
 	  url: "./api/getIncommingLinkDistribution"
 	  
 	}).done(function(result) {
 		data = [];
+
+        result = JSON.parse(result);
 		for (var key in result) {
 		    data.push({
 			x:parseInt(key),
@@ -507,24 +501,31 @@ $.ajax({
 		    });
 		}
 
+        data = data.slice(0,1000);
   		morrisArea.setData(data);
-
-
 	});
+
 
 }
 
 $(document).ready(function(){
 	loadStats();
+
+    getCrawledSites((res)=>{
+            //enter number of sites crawled
+            $('.sitesCrawled').html(res[0].count);
+
+            //calculate percantage of sites crawled based on the estimatation from worldwidewebsize.com (5750000000 sites)
+            var count = parseInt(res[0].count);
+            $('.percentCrawled').html(count/(5750000000/100));
+    });
 	loadChart();
 
-
 	setInterval(function(){
-	reload();
-	}, 30000);
+	   reload();
+	}, 360000);
 	setInterval(function(){
 		getCrawledSites((res)=>{
-
             //enter number of sites crawled
 			$('.sitesCrawled').html(res[0].count);
 
@@ -532,7 +533,7 @@ $(document).ready(function(){
             var count = parseInt(res[0].count);
             $('.percentCrawled').html(count/(5750000000/100));
 		});
-	},5000);
+	},360000);
 });
 </script>
 

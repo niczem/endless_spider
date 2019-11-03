@@ -18,7 +18,6 @@ var crawler = new function(){
 		this.initCleanUp();
 		let self = this;
 		db.init(()=>{
-			
 			self.current_site_id = self.get_current_site_id();
 			self.start_site_id = self.get_current_site_id();
 			self.crawl_sites(1);
@@ -212,7 +211,8 @@ var crawler = new function(){
 						self.install(function(){
 							debug.log('install succeeded! adding first site '+start_url);
 							self.insert_site(start_url, -1, function(){
-								process.exit(22);
+								console.log('...done. restart process.');
+								//process.exit(22);
 							})
 						});
 					}else{
@@ -223,6 +223,10 @@ var crawler = new function(){
 						cb(result[0].site_url);
 					else
 						debug.log('could not find  site with id #'+id);
+						self.insert_site(start_url, -1, function(){
+							debug.log('...done. restart process.');
+							//process.exit(22);
+						});
 				}
 		});
 
@@ -234,7 +238,6 @@ var crawler = new function(){
 	
 		debug.log('requesting site: "'+url+'"');
 		var self = this;
-		var request = require('request');
 		var options = {
 		  url: JSON.parse( JSON.stringify( url ) ),
 		  headers: {
@@ -244,10 +247,8 @@ var crawler = new function(){
 		request(options, function (error, response, body) {
 		  if(error){
 			//RELOAD STATUS!
-
 		  	console.log('error:', error); // Print the error if one occurred
 			cb(error);
-			
 		  }else
 	          	cb(null,{'status':response && response.statusCode,'content':body});
 		  

@@ -183,11 +183,22 @@ var crawler = new function(){
 
 	};
 
+	this.get_current_crawler_id = function(){
+		db.connection.query('SELECT * FROM crawlers WHERE blocked = false', [],(error,result)=>{
+				if(error){
+					throw error;
+				}
+				console.log(result);
+		});
+	};
+
 	this.get_current_site_id = function(){
+
 		var fs = require('fs');
 		var contents = fs.readFileSync('counter.txt').toString();
 		return parseInt(contents);
-	}
+	};
+
 	this.terminateProcess = function(){
 		var fs = require('fs');
 		var stream = fs.createWriteStream("counter.txt");
@@ -300,8 +311,53 @@ var crawler = new function(){
 		//catches uncaught exceptions
 		process.on('uncaughtException', exitHandler.bind(null, {exit:true}));
 	}
+	this.exportCrawl(){
+		let crawl_id = 1337;
+		let fs = require('fs');
+		let spawn = require('child_process').spawn;
+		let rimraf = require("rimraf");
+
+		console.log('create dir in ./exports/tmp/ with name $crawl_id');
+		let dir = './exports/tmp/'+crawl_id;
+		if (!fs.existsSync(dir)){
+		    fs.mkdirSync(dir);
+		}
 
 
+		console.log('export db_sites, and links to ./exports/tmp/$crawl_id/export.sql');
+		let wstream = fs.createWriteStream('./exports/tmp/'+crawl_id+'/data.sql');
+		let mysqldump = spawn('mysqldump', [
+		    '-u',
+		    db.config.user,
+		    '-p',
+		    db.config.password,
+		    db.config.database,
+		]);
+		mysqldump
+		    .stdout
+		    .pipe(wstream)
+		    .on('finish', function () {
+		        console.log('Completed')
+		    })
+		    .on('error', function (err) {
+		        console.log(err)
+		    });
+
+		//export crawl_info to ./exports/$crawl_id/crawl_info.json
+
+		console.log('zip ./exports/tmp/$crawl_id/ to exports/final/$crawl_id.zip')
+		const ls = spawn('zip', ['./exports/tmp/'+crawl_id, './exports/'+crawl_id+'.zip']);
+		ls.on('close', (code) => {
+		  console.log(`child process exited with code ${code}`);
+		});
+
+		console.log('delete ./exports/tmp/$crawl_id/');
+		rimraf.sync('./exports/tmp/');
+
+		//truncate sites and links
+
+		//restart crawler
+	}
 }
 
 var debug = new function(){
@@ -316,5 +372,8 @@ var debug = new function(){
 var args = process.argv.slice(2);
 if(typeof args[0] !== 'undefined' && args[0] == '--install'){
 	crawler.install();
-}else
+}else if(typeof args[0] !== 'undefined' && args[0] == '--export'){
+
+else{
 	crawler.init();
+}

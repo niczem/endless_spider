@@ -1,4 +1,6 @@
 
+
+
 let request = require('request');
 let getUrls = require('get-urls');
 let isURL = require('validator/lib/isURL');
@@ -311,11 +313,12 @@ var crawler = new function(){
 		//catches uncaught exceptions
 		process.on('uncaughtException', exitHandler.bind(null, {exit:true}));
 	}
-	this.exportCrawl(){
-		let crawl_id = 1337;
+	this.exportCrawl = function(){
+		let crawl_id = Math.round(new Date().getTime()/1000);
 		let fs = require('fs');
 		let spawn = require('child_process').spawn;
 		let rimraf = require("rimraf");
+		const mysqldump = require('mysqldump');
 
 		console.log('create dir in ./exports/tmp/ with name $crawl_id');
 		let dir = './exports/tmp/'+crawl_id;
@@ -325,38 +328,37 @@ var crawler = new function(){
 
 
 		console.log('export db_sites, and links to ./exports/tmp/$crawl_id/export.sql');
-		let wstream = fs.createWriteStream('./exports/tmp/'+crawl_id+'/data.sql');
-		let mysqldump = spawn('mysqldump', [
-		    '-u',
-		    db.config.user,
-		    '-p',
-		    db.config.password,
-		    db.config.database,
-		]);
-		mysqldump
-		    .stdout
-		    .pipe(wstream)
-		    .on('finish', function () {
-		        console.log('Completed')
-		    })
-		    .on('error', function (err) {
-		        console.log(err)
-		    });
 
-		//export crawl_info to ./exports/$crawl_id/crawl_info.json
 
-		console.log('zip ./exports/tmp/$crawl_id/ to exports/final/$crawl_id.zip')
-		const ls = spawn('zip', ['./exports/tmp/'+crawl_id, './exports/'+crawl_id+'.zip']);
+
+
+ 
+// dump the result straight to a file
+
+mysqldump({
+    connection: {
+        host: 'localhost',
+        user: db.config.default.user,
+        password: db.config.default.password,
+        database: db.config.default.database,
+    },
+    dumpToFile: './exports/tmp/'+crawl_id+'/data.sql.gz',
+    compressFile:true
+}).then(function(){
+
+		console.log('zip ./exports/tmp/$crawl_id/ to exports/final/$crawl_id.zip');
+		console.log('zip', ['-r','./exports/tmp/'+crawl_id, './exports/final/'+crawl_id+'.zip']);
+		const ls = spawn('zip', ['-r','./exports/final/'+crawl_id+'.zip','./exports/tmp/'+crawl_id]);
 		ls.on('close', (code) => {
 		  console.log(`child process exited with code ${code}`);
+                  console.log('delete ./exports/tmp/$crawl_id/');
+//                  rimraf.sync('./exports/tmp/'+crawl_id);
 		});
-
-		console.log('delete ./exports/tmp/$crawl_id/');
-		rimraf.sync('./exports/tmp/');
 
 		//truncate sites and links
 
 		//restart crawler
+});
 	}
 }
 
@@ -373,7 +375,8 @@ var args = process.argv.slice(2);
 if(typeof args[0] !== 'undefined' && args[0] == '--install'){
 	crawler.install();
 }else if(typeof args[0] !== 'undefined' && args[0] == '--export'){
-
-else{
+console.log(db);
+	crawler.exportCrawl();
+}else{
 	crawler.init();
 }

@@ -458,10 +458,14 @@ function reload(limit){
 		data = [];
         try{
             result = JSON.parse(result);
+
         }catch(e){
             
         }
-		for (var key in result) {
+        if(result.regression)
+            console.log(result.regression);
+        
+		for (var key in result.distribution) {
 		    data.push({
 			x:parseInt(key),
 			y:result[key]

@@ -2,50 +2,76 @@ const express = require('express')
 const app = express()
 const path = require('path');
 const fs = require("fs");
+const regression = require("regression");
 
 let db = require('../db');
 
 
 function isInt(data){
-	if(typeof data==='number' && (data%1)===0)
-		return true;
-	return false;
+        if(typeof data==='number' && (data%1)===0)
+                return true;
+        return false;
 }
 
+
 function getIncommingLinkDistribution(limit){
-	let limitString = '';
+        let limitString = '';
 
-	if(limit){
-		limit = parseInt(limit);
-		if(isInt(limit)){
-			limitString = `WHERE in_id<='${limit}' AND  out_id<='${limit}'`;
-		}else{
-			throw 'limit not integer'
-		}
-	}
+        if(limit){
+                limit = parseInt(limit);
+                if(isInt(limit)){
+                        limitString = `WHERE in_id<='${limit}' AND  out_id<='${limit}'`;
+                }else{
+                        throw 'limit not integer'
+                }
+        }
 
-	return new Promise(function(resolve, reject){
-		console.log(`SELECT DISTINCT(out_id) as id, count(out_id) AS count FROM links ${limitString} GROUP BY out_id HAVING count > 2 ORDER by count DESC;`);
-		db.connection.query(`SELECT DISTINCT(out_id) as id, count(out_id) AS count FROM links ${limitString} GROUP BY out_id HAVING count > 2 ORDER by count DESC;`, function (err, result, fields) {
-				var distribution = {};
-				result.forEach(function(value,i){
-					if(typeof distribution[value.count] == 'undefined')
-						distribution[value.count] = 1;
-					else
-						distribution[value.count]++;
-				});
-				//if limit is given, do not overwrite file
-				if(limit){
-					  resolve(distribution);
-				}else{
-					fs.writeFile("data/distribution.json", JSON.stringify(distribution), (err) => {
-					  if (err) reject(err);
-					  console.log("Successfully written to file.");
-					  resolve(distribution);
-					});
-				}
-		});
-	});
+        return new Promise(function(resolve, reject){
+                console.log(`SELECT DISTINCT(out_id) as id, count(out_id) AS count FROM links ${limitString} GROUP BY out_id HAVING count > 2 ORDER by count DESC;`);
+                db.connection.query(`SELECT DISTINCT(out_id) as id, count(out_id) AS count FROM links ${limitString} GROUP BY out_id HAVING count > 2 ORDER by count DESC;`, function (err, result, fields) {
+                                var distribution = {};
+                                result.forEach(function(value,i){
+                                        if(typeof distribution[value.count] == 'undefined')
+                                                distribution[value.count] = 1;
+                                        else
+                                                distribution[value.count]++;
+                                });
+                                //if limit is given, do not overwrite file
+                                if(limit){
+                                        doRegression(distribution).then(function(regression_result){
+                                          resolve({
+                                          	distribution:distribution,
+                                          	regression:regression_result
+                                          });
+                                        });
+                                }else{
+                                        fs.writeFile("data/distribution.json", JSON.stringify(distribution), (err) => {
+                                          if (err) reject(err);
+                                          console.log("Successfully written to file.");
+                                          resolve({
+                                          	distribution:distribution
+                                          });
+                                        });
+                                }
+                });
+        });
+}
+
+function doRegression(link_distribution){
+
+        return new Promise(function(resolve, reject){
+                let result = [];
+                for(let i in link_distribution){
+                        result.push([parseInt(i), link_distribution[i]]);
+                }
+                let regression_result = regression.power(result)
+                fs.writeFile("data/regression.json", JSON.stringify(regression_result), (err) => {
+                          if (err) console.log(err);
+                          console.log("Successfully written to file.");
+                          resolve(regression_result);
+                });
+        });
+
 }
 
 function getStats(){

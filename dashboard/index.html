@@ -126,6 +126,10 @@
                     <p>
                         <div class="button" onclick="setYLogScale(true);">yLogScale ON</div>
                         <div class="button" onclick="setYLogScale(false);">yLogScale OFF</div>
+
+                        <form id="setLimit">
+                            <input type="number" placeholder="limit" id="limit">
+                        </form>
                     </p>
                     <!-- column -->
 
@@ -350,7 +354,7 @@
     };
 }).call(this);
 
-var morrisArea;
+var morrisArea,reloadInterval;
 var data = [];
 
 function setYLogScale(status) {
@@ -358,12 +362,11 @@ function setYLogScale(status) {
   morrisArea.setData(data);
 }
 // Dashboard 1 Morris-chart
-function loadChart(){
+function loadChart(limit){
 	"use strict";
 
-
 	$.ajax({
-	  url: "./api/getIncommingLinkDistribution"
+	  url:"./api/getIncommingLinkDistribution"
 	  
 	}).done(function(result) {
 		 
@@ -435,16 +438,29 @@ function loadStats(){
 
 }
 
-function reload(){
+function reload(limit){
 	loadStats();
 
+    let url;
+    if(limit){
+        limit = parseInt(limit);
+        url = "./api/getIncommingLinkDistribution/"+limit
+    }else
+        url = "./api/getIncommingLinkDistribution";
+
+
     $.ajax({
-	  url: "./api/getIncommingLinkDistribution"
+	  url: url
 	  
 	}).done(function(result) {
-		data = [];
+        console.log(result);
 
-        result = JSON.parse(result);
+		data = [];
+        try{
+            result = JSON.parse(result);
+        }catch(e){
+            
+        }
 		for (var key in result) {
 		    data.push({
 			x:parseInt(key),
@@ -472,9 +488,10 @@ $(document).ready(function(){
     });
 	loadChart();
 
-	setInterval(function(){
+	reloadInterval = setInterval(function(){
 	   reload();
 	}, 360000);
+
 	setInterval(function(){
 		getCrawledSites((res)=>{
             //enter number of sites crawled
@@ -485,6 +502,13 @@ $(document).ready(function(){
             $('.percentCrawled').html(count/(5750000000/100));
 		});
 	},360000);
+
+
+    $('#setLimit').submit(function(e){
+        e.preventDefault();
+        clearInterval(reloadInterval);
+        reload($('#setLimit #limit').val());
+    })
 });
 </script>
 

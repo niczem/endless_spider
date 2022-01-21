@@ -1,10 +1,9 @@
 
+import getUrls from 'get-urls';
+import request from 'request';
+import isURL from 'validator/lib/isURL.js';
+import { db } from './db.js';
 
-
-let request = require('request');
-let getUrls = require('get-urls');
-let isURL = require('validator/lib/isURL');
-let db = require('./db');
 
 let start_url = 'https://news.ycombinator.com'; //<3
 

@@ -1,7 +1,7 @@
 export const config = {
-host: "localhost",
+host: "mysql",
 user: "spider",
-password: "password",
+password: "spider",
 database: 'spider',
 multipleStatements: true                
 }

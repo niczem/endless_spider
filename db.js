@@ -11,7 +11,7 @@ let DB = new function(){
 
 	this.connection;
 	this.init = function(cb){
-		this.connection = mysql.createConnection(config.default);
+		this.connection = mysql.createConnection(config);
 
 		this.connection.connect((err) => {
 		  if (err) throw err;

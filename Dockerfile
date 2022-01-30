@@ -1,4 +1,4 @@
-FROM node:10
+FROM node:16
 
 # Create app directory
 WORKDIR /usr/src/app
@@ -13,4 +13,4 @@ RUN npm install
 # Bundle app source
 COPY . .
 
-CMD [ "node", "crawler.js" ]
+CMD [ "node", "crawler.js", "--install"]

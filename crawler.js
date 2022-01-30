@@ -1,10 +1,10 @@
 
+import getUrls from 'get-urls';
+import request from 'request';
+import fs from 'fs';
+import isURL from 'validator/lib/isURL.js';
+import { db } from './db.js';
 
-
-let request = require('request');
-let getUrls = require('get-urls');
-let isURL = require('validator/lib/isURL');
-let db = require('./db');
 
 let start_url = 'https://news.ycombinator.com'; //<3
 
@@ -196,13 +196,11 @@ var crawler = new function(){
 
 	this.get_current_site_id = function(){
 
-		var fs = require('fs');
 		var contents = fs.readFileSync('counter.txt').toString();
 		return parseInt(contents);
 	};
 
 	this.terminateProcess = function(){
-		var fs = require('fs');
 		var stream = fs.createWriteStream("counter.txt");
 		var self = this;
 		self.current_site_id++;
@@ -315,7 +313,6 @@ var crawler = new function(){
 	}
 	this.exportCrawl = function(){
 		let crawl_id = Math.round(new Date().getTime()/1000);
-		let fs = require('fs');
 		let spawn = require('child_process').spawn;
 		let rimraf = require("rimraf");
 		const mysqldump = require('mysqldump');

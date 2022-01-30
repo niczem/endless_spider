@@ -1,8 +1,7 @@
-let config = {
-host: "localhost",
+export const config = {
+host: "mysql",
 user: "spider",
-password: "password",
+password: "spider",
 database: 'spider',
 multipleStatements: true                
 }
-exports.default = config;

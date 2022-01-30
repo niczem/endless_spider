@@ -1,17 +1,17 @@
 'use strict';
-let mysql = require('mysql');
+import mysql from 'mysql';
+import { config } from './config/config.js';
 
-let config = require('./config/config.js');
 
 let debug = new function(){
 this.log = console.log;
 };
 
-let db = new function(){
+let DB = new function(){
 
 	this.connection;
 	this.init = function(cb){
-		this.connection = mysql.createConnection(config.default);
+		this.connection = mysql.createConnection(config);
 
 		this.connection.connect((err) => {
 		  if (err) throw err;
@@ -61,4 +61,4 @@ let db = new function(){
 }
 
 
-module.exports = db;
+export const db = DB;

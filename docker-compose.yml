@@ -1,26 +1,34 @@
 version: '3'
 
 services:
-
   mysql:
+    container_name: mysql
     image: mysql:5.6
     environment:
-      MYSQL_ROOT_PASSWORD: "password"
+      MYSQL_ROOT_PASSWORD: "spider"
       MYSQL_DATABASE: "spider"
-    #volumes:
-    #  - datvolume:/var/lib/mysql
-
+      MYSQL_USER: "spider"
+      MYSQL_PASSWORD: "spider"
+    volumes:
+     - ./data:/var/lib/mysql
     restart: always
     ports:
       - "3306:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
   nodejs:
     build:
       context: .
       dockerfile: Dockerfile
-    image: nodejs
+    command: node /usr/src/app/crawler.js
     container_name: nodejs
-    restart: unless-stopped 
     ports:
       - "8080:8080"
+    depends_on: 
+      - mysql
+      
+    restart: unless-stopped
 volumes:
   datvolume:

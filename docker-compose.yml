@@ -30,5 +30,12 @@ services:
       - mysql
       
     restart: unless-stopped
+  phpmyadmin:
+    image: phpmyadmin
+    restart: always
+    ports:
+      - 8088:80
+    environment:
+      - PMA_ARBITRARY=1
 volumes:
   datvolume:

@@ -200,15 +200,24 @@ var crawler = new function(){
 		return parseInt(contents);
 	};
 
-	this.terminateProcess = function(){
+	this.updateCounter = function(value, cb){
 		var stream = fs.createWriteStream("counter.txt");
+		var self = this
+		stream.once('open', function(fd) {
+		  	stream.write(value+"\n");
+		  	stream.end();
+			if(typeof cb == 'function')
+			cb()
+		});
+	}
+
+	this.terminateProcess = function(){
 		var self = this;
 		self.current_site_id++;
-		stream.once('open', function(fd) {
-		  	stream.write(self.current_site_id+"\n");
-		  	stream.end();
+		this.updateCounter(self.current_site_id+"\n",function(){
 			self.crawl_sites(1);
-		});
+		})
+	
 	}
 
 	this.get_url_by_site_id = function(id, cb){
@@ -221,9 +230,12 @@ var crawler = new function(){
 						debug.error('seems like table dont exist \n proceeding with install');
 						self.install(function(){
 							debug.log('install succeeded! adding first site '+start_url);
+							console.log("UPDATE COUNTER1");
+							self.updateCounter(0);
+							self.current_site_id=0;
 							self.insert_site(start_url, -1, function(){
 								console.log('...done. restart process.');
-								//process.exit(22);
+								process.exit(22);
 							})
 						});
 					}else{
@@ -236,7 +248,7 @@ var crawler = new function(){
 						debug.log('could not find  site with id #'+id);
 						self.insert_site(start_url, -1, function(){
 							debug.log('...done. restart process.');
-							//process.exit(22);
+							process.exit(22);
 						});
 				}
 		});

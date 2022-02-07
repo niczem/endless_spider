@@ -28,6 +28,18 @@ services:
     ports:
       - "8080:3000"
     restart: unless-stopped
+    depends_on: 
+      - mysql
+
+  nodejs:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: node /usr/src/app/crawler.js
+    container_name: nodejs
+    restart: unless-stopped
+    depends_on: 
+      - mysql
 
   phpmyadmin:
     image: phpmyadmin

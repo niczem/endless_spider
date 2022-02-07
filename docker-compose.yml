@@ -18,18 +18,17 @@ services:
       test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
       timeout: 20s
       retries: 10
-  nodejs:
+
+  api:
     build:
       context: .
-      dockerfile: Dockerfile
-    command: node /usr/src/app/crawler.js
-    container_name: nodejs
+      dockerfile: ./dashboard/Dockerfile
+    command: node /usr/src/app/dashboard/api.js
+    container_name: api
     ports:
-      - "8080:8080"
-    depends_on: 
-      - mysql
-      
+      - "8080:3000"
     restart: unless-stopped
+
   phpmyadmin:
     image: phpmyadmin
     restart: always

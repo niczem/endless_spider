@@ -134,7 +134,7 @@ var crawler = new function(){
 
 
 					debug.log('forbidden extension, update db entry and skip url'+url);
-					self.update_site_status(this.current_site_id, -2, function(){
+					self.update_site_status(self.current_site_id, -2, function(){
 						self.terminateProcess();
 						return null;
 					})
@@ -242,14 +242,19 @@ var crawler = new function(){
 						console.log(error);
 					}
 				}else{
-					if(result[0] && result[0].site_url)
+					if(result[0] && result[0].site_url){
 						cb(result[0].site_url);
-					else
+					}
+					else{
 						debug.log('could not find  site with id #'+id);
+						if(id == 1)
 						self.insert_site(start_url, -1, function(){
 							debug.log('...done. restart process.');
 							process.exit(22);
 						});
+						else
+							process.exit(22);
+					}
 				}
 		});
 

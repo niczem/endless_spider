@@ -356,6 +356,7 @@
 
 var morrisArea,reloadInterval;
 var data = [];
+const api_url = 'http://localhost:8080/api'
 
 function setYLogScale(status) {
   morrisArea.options["yLogScale"] = status;
@@ -366,7 +367,7 @@ function loadChart(limit){
 	"use strict";
 
 	$.ajax({
-	  url:"./api/getIncommingLinkDistribution"
+	  url:api_url+"/getIncommingLinkDistribution"
 	  
 	}).done(function(result) {
 		 
@@ -413,7 +414,7 @@ function loadChart(limit){
 
 function getStats(cb){
 	$.ajax({
-	  url: "./api/getStats"
+	  url: api_url+"/getStats"
 	  
 	}).done(function(result) {
 		cb(JSON.parse(result));
@@ -422,7 +423,7 @@ function getStats(cb){
 
 function getCrawledSites(cb){
 	$.ajax({
-	  url: "./api/getCrawledSites"
+	  url: api_url+"/getCrawledSites"
 	  
 	}).done(function(result) {
         cb(JSON.parse(result));
@@ -444,9 +445,9 @@ function reload(limit){
     let url;
     if(limit){
         limit = parseInt(limit);
-        url = "./api/getIncommingLinkDistribution/"+limit
+        url =  api_url+"/getIncommingLinkDistribution/"+limit
     }else
-        url = "./api/getIncommingLinkDistribution";
+        url =  api_url+"/getIncommingLinkDistribution";
 
 
     $.ajax({

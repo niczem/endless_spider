@@ -4,7 +4,7 @@ const path = require('path');
 const fs = require("fs");
 const regression = require("regression");
 
-let db = require('../db');
+let db = require('./db');
 
 
 function isInt(data){
@@ -27,7 +27,7 @@ function getIncommingLinkDistribution(limit){
         }
 
         return new Promise(function(resolve, reject){
-                console.log(`SELECT DISTINCT(out_id) as id, count(out_id) AS count FROM links ${limitString} GROUP BY out_id HAVING count > 2 ORDER by count DESC;`);
+                console.log(db.connction);
                 db.connection.query(`SELECT DISTINCT(out_id) as id, count(out_id) AS count FROM links ${limitString} GROUP BY out_id HAVING count > 2 ORDER by count DESC;`, function (err, result, fields) {
                                 var distribution = {};
                                 result.forEach(function(value,i){
@@ -96,8 +96,13 @@ function getCrawledSites(){
 		});
 }
 
+db.init();
 //load and write distribution every 5m
-getIncommingLinkDistribution();
+	getIncommingLinkDistribution().then(function(){
+		getStats().then(function(){
+			getCrawledSites();
+		});
+	});
 setInterval(function(){
 	getIncommingLinkDistribution().then(function(){
 		getStats().then(function(){
@@ -106,7 +111,6 @@ setInterval(function(){
 	});
 }, 7200000);
 
-db.init();
 app.get('/', function(req, res) {
     res.sendFile(path.join(__dirname + '/index.html'));
 });

@@ -1,10 +1,32 @@
-
 import getUrls from 'get-urls';
 import request from 'request';
 import fs from 'fs';
-import isURL from 'validator/lib/isURL.js';
 import { db } from './db.js';
 
+
+/**
+ * Validates if string is URL
+ *
+ * @param {string} - string to validate
+ * @return {boolean} 
+ *
+ * @example
+ *
+ *     if(isURL(string)){
+ * 			//...do somithing
+ * 		}
+ */
+function isURL(string) {
+	let url;
+	
+	try {
+	  url = new URL(string);
+	} catch (_) {
+	  return false;  
+	}
+  
+	return url.protocol === "http:" || url.protocol === "https:";
+  }
 
 let start_url = 'https://news.ycombinator.com'; //<3
 

@@ -122,6 +122,18 @@ app.get('/api/getStats', function(req, res, next){
 		  		res.send(data);
 		});
 });
+app.get('/api/sites', function(req, res, next){
+		  db.connection.query("SELECT DISTINCT(out_id) as id, count(out_id) AS count FROM links GROUP BY out_id HAVING count > 1 ORDER by count DESC;", function (err, result, fields) {
+			console.log(err);
+		    res.send(result);
+		  });
+});
+app.get('/api/siteStats', function(req, res, next){
+		  db.connection.query("SELECT s.id, s.site_url, COUNT(l.in_id) as link_count FROM sites s LEFT JOIN links l ON s.id = l.out_id GROUP BY s.id, s.site_url HAVING COUNT(l.in_id) >= 2 ORDER BY link_count DESC;", function (err, result, fields) {
+			console.log(err);
+		    res.send(result);
+		  });
+});
 app.get('/api/getIncommingLinks', function(req, res, next){
 		  db.connection.query("SELECT DISTINCT(out_id) as id, count(out_id) AS count FROM links GROUP BY out_id HAVING count > 1 ORDER by count DESC;", function (err, result, fields) {
 			console.log(err);

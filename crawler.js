@@ -1,4 +1,5 @@
-import getUrls from 'get-urls';
+//import getUrls from 'get-urls';
+import extractUrls from 'extract-urls'
 import request from 'request';
 import fs from 'fs';
 import { db } from './db.js';
@@ -308,7 +309,7 @@ var crawler = new function(){
 
 		try{
 
-			return Array.from(getUrls(html));
+			return Array.from(extractUrls(html));
 		}catch(e){
 			debug.log(e);
 			return [];		

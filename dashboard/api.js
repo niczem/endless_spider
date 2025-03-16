@@ -141,7 +141,7 @@ app.get('/api/sites', function(req, res, next){
 		  });
 });
 app.get('/api/links', function(req, res, next){
-		  db.connection.query("SELECT * FROM links ORDER BY id ASC;", function (err, result, fields) {
+		  db.connection.query("SELECT * FROM links;", function (err, result, fields) {
 			console.log(err);
 		    res.send(result);
 		  });

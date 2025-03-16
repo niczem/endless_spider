@@ -134,6 +134,18 @@ app.get('/api/siteStats', function(req, res, next){
 		    res.send(result);
 		  });
 });
+app.get('/api/sites', function(req, res, next){
+		  db.connection.query("SELECT * FROM sites ORDER BY id ASC;", function (err, result, fields) {
+			console.log(err);
+		    res.send(result);
+		  });
+});
+app.get('/api/links', function(req, res, next){
+		  db.connection.query("SELECT * FROM links ORDER BY id ASC;", function (err, result, fields) {
+			console.log(err);
+		    res.send(result);
+		  });
+});
 app.get('/api/domains', function(req, res, next){
 		  db.connection.query("SELECT SUBSTRING_INDEX(SUBSTRING_INDEX(site_url, '/', 3), '/', -1) AS domain FROM sites GROUP BY domain;", function (err, result, fields) {
 			console.log(err);
